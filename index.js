@@ -33,7 +33,7 @@ class WebpackEntryManifestPlugin {
     this.options = Object.assign(
       {
         map: null,
-        chunks: true,
+        chunks: false,
         basePath: null,
         outputPath: null,
         publicPath: null,

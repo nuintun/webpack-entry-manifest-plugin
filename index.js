@@ -7,8 +7,8 @@
  * @see https://github.com/jakedahm/webpack-asset-manifest-plugin
  */
 
-const fs = require('fs-extra');
 const path = require('path');
+const fs = require('fs-extra');
 
 /**
  * @function unixify
@@ -32,6 +32,8 @@ class WebpackEntryManifestPlugin {
     this.name = 'WebpackEntryManifestPlugin';
     this.options = Object.assign(
       {
+        map: null,
+        chunks: true,
         basePath: null,
         outputPath: null,
         publicPath: null,
@@ -44,60 +46,114 @@ class WebpackEntryManifestPlugin {
 
   /**
    * @private
+   * @method extname
+   * @param {string} file
+   * @returns {string}
+   */
+  extname(file) {
+    return path.extname(file).toLowerCase();
+  }
+
+  /**
+   * @private
    * @method generateManifest
    * @param {Compiler} compiler
    * @param {Compilation} compilation
+   * @param {Function} next
    */
-  generateManifest(compiler, compilation) {
+  generateManifest(compiler, compilation, next) {
     const options = this.options;
     const basePath = options.basePath || '';
+    const map = typeof options.map === 'function' ? options.map : file => file;
     const publicPath = options.publicPath || compiler.options.output.publicPath;
 
     // Get manifest
     const manifest = compilation.chunkGroups.reduce((manifest, group) => {
       if (group.name) {
+        const js = [];
+        const css = [];
+        const initial = new Set();
         const chunks = group.chunks;
         const name = basePath + group.name;
-        const groupFiles = group.getFiles().map(file => publicPath + file);
 
-        manifest[name] = {
-          files: groupFiles,
-          chunks: group.getChildren().reduce((chunks, chunk) => {
-            const files = chunk.chunks.reduce((items, item) => {
-              item.files.forEach(file => {
-                const item = publicPath + file;
+        // Walk main chunks
+        for (const chunk of chunks) {
+          for (let file of chunk.files) {
+            if (!initial.has(file)) {
+              initial.add(file);
 
-                if (chunks.indexOf(item) === -1 && groupFiles.indexOf(item) === -1) {
-                  items.push(publicPath + file);
+              file = publicPath + file;
+              file = String(map(file, chunk));
+
+              switch (this.extname(file)) {
+                case '.js':
+                  js.push(file);
+                  break;
+                case '.css':
+                  css.push(file);
+                  break;
+                default:
+                  break;
+              }
+            }
+          }
+        }
+
+        // Set js css
+        manifest[name] = { js, css };
+
+        // Set chunks
+        if (options.chunks) {
+          const children = new Set();
+
+          // Walk async chunks
+          manifest[name].chunks = group.getChildren().reduce((chunks, chunk) => {
+            chunk.chunks.forEach(chunk => {
+              chunk.files.forEach(file => {
+                if (!children.has(file) && !initial.has(file)) {
+                  children.add(file);
+
+                  file = publicPath + file;
+                  file = String(map(file, chunk));
+
+                  chunks.push(file);
                 }
               });
+            });
 
-              return items;
-            }, []);
-
-            return chunks.concat(files);
-          }, [])
-        };
+            return chunks;
+          }, []);
+        }
       }
 
       return manifest;
     }, Object.create(null));
 
+    // Get paths
     const outputPath = options.outputPath || compiler.outputPath;
     const outputFile = path.resolve(outputPath, options.filename);
 
-    fs.outputFileSync(outputFile, options.serialize(manifest));
+    // Write manifest file
+    fs
+      .outputFile(outputFile, options.serialize(manifest))
+      .then(result => next())
+      .catch(error => next(error));
   }
 
+  /**
+   * @method apply
+   * @param {Compiler} compiler
+   */
   apply(compiler) {
-    const emit = compilation => this.generateManifest(compiler, compilation);
+    const emit = (compilation, next) => this.generateManifest(compiler, compilation, next);
 
     if (compiler.hooks) {
-      compiler.hooks.emit.tap({ name: this.name, stage: Infinity }, emit);
+      compiler.hooks.emit.tapAsync(this.name, emit);
     } else {
       compiler.plugin('emit', emit);
     }
   }
 }
 
+// Exports
 module.exports = WebpackEntryManifestPlugin;

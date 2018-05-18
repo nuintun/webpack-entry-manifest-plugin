@@ -82,10 +82,14 @@ class WebpackEntryManifestPlugin {
             if (!initial.has(file)) {
               initial.add(file);
 
+              // Get extname
+              const ext = this.extname(file);
+
+              // Get file path
               file = publicPath + file;
               file = String(map(file, chunk));
 
-              switch (this.extname(file)) {
+              switch (ext) {
                 case '.js':
                   js.push(file);
                   break;
@@ -113,6 +117,7 @@ class WebpackEntryManifestPlugin {
                 if (!children.has(file) && !initial.has(file)) {
                   children.add(file);
 
+                  // Get file path
                   file = publicPath + file;
                   file = String(map(file, chunk));
 

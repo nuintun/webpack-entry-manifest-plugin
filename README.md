@@ -74,8 +74,6 @@ module.exports = {
 }
 ```
 
-new WebpackEntryManifestPlugin
-
 # License
 
 [MIT](LICENSE)

@@ -18,6 +18,7 @@ module.exports = {
     // ... webpack plugins
     new WebpackEntryManifestPlugin({
       map: null, // Assets path map function
+      filter: null, // Assets path filter function
       basePath: null, // Entry name base path
       outputPath: null, // Output target directory, default use output.path
       publicPath: null, // Same to webpack output.publicPath, default use output.publicPath
@@ -40,10 +41,7 @@ module.exports = {
       "/Assets/dist/js/antd.js",
       "/Assets/dist/js/index.js"
     ],
-    "css": [
-      "/Assets/dist/css/antd.css",
-      "/Assets/dist/css/index.css"
-    ]
+    "css": ["/Assets/dist/css/antd.css", "/Assets/dist/css/index.css"]
   },
   "pages/login/index": {
     "js": [
@@ -53,10 +51,7 @@ module.exports = {
       "/Assets/dist/js/antd.js",
       "/Assets/dist/js/login/index.js"
     ],
-    "css": [
-      "/Assets/dist/css/antd.css",
-      "/Assets/dist/css/login/index.css"
-    ]
+    "css": ["/Assets/dist/css/antd.css", "/Assets/dist/css/login/index.css"]
   },
   "pages/user/index": {
     "js": [
@@ -66,10 +61,7 @@ module.exports = {
       "/Assets/dist/js/antd.js",
       "/Assets/dist/js/user/index.js"
     ],
-    "css": [
-      "/Assets/dist/css/antd.css",
-      "/Assets/dist/css/user/index.css"
-    ]
+    "css": ["/Assets/dist/css/antd.css", "/Assets/dist/css/user/index.css"]
   }
 }
 ```

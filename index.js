@@ -30,6 +30,7 @@ function unixify(path) {
 
 // Default configure function
 const map = file => file;
+const filter = file => true;
 const serialize = manifest => JSON.stringify(manifest, null, 2);
 
 /**
@@ -56,6 +57,7 @@ class WebpackEntryManifestPlugin {
     this.name = 'WebpackEntryManifestPlugin';
     this.options.basePath = this.options.basePath || '';
     this.options.map = isFunction(this.options.map) ? this.options.map : map;
+    this.options.filter = isFunction(this.options.filter) ? this.options.filter : filter;
     this.options.serialize = isFunction(this.options.serialize) ? this.options.serialize : serialize;
   }
 
@@ -109,6 +111,8 @@ class WebpackEntryManifestPlugin {
 
     // Map function
     const map = options.map;
+    // Filter function
+    const filter = options.files;
     // Serialize function
     const serialize = options.serialize;
     // Define manifest
@@ -134,18 +138,21 @@ class WebpackEntryManifestPlugin {
 
             // Get file path
             file = publicPath + file;
-            file = String(map(file, chunk));
 
-            // Type classification
-            switch (ext) {
-              case '.js':
-                js.push(file);
-                break;
-              case '.css':
-                css.push(file);
-                break;
-              default:
-                break;
+            if (filter(file, chunk)) {
+              file = String(map(file, chunk));
+
+              // Type classification
+              switch (ext) {
+                case '.js':
+                  js.push(file);
+                  break;
+                case '.css':
+                  css.push(file);
+                  break;
+                default:
+                  break;
+              }
             }
           }
         }
@@ -170,8 +177,7 @@ class WebpackEntryManifestPlugin {
     };
 
     // Write manifest file
-    fs
-      .outputFile(outputFile, buffer)
+    fs.outputFile(outputFile, buffer)
       .then(result => next())
       .catch(error => next(error));
   }

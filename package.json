@@ -1,6 +1,6 @@
 {
   "name": "webpack-entry-manifest-plugin",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Webpack plugin for generating an asset manifest with grouped entry chunks.",
   "main": "index.js",
   "engines": {
@@ -10,7 +10,13 @@
     "type": "git",
     "url": "git+https://github.com/nuintun/webpack-entry-manifest-plugin.git"
   },
-  "keywords": ["Webpack", "manifest", "assets", "chunks", "entry"],
+  "keywords": [
+    "Webpack",
+    "manifest",
+    "assets",
+    "chunks",
+    "entry"
+  ],
   "author": {
     "name": "nuintun",
     "email": "nuintun@qq.com"

@@ -112,7 +112,7 @@ class WebpackEntryManifestPlugin {
     // Map function
     const map = options.map;
     // Filter function
-    const filter = options.files;
+    const filter = options.filter;
     // Serialize function
     const serialize = options.serialize;
     // Define manifest

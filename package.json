@@ -1,6 +1,6 @@
 {
   "name": "webpack-entry-manifest-plugin",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Webpack plugin for generating an asset manifest with grouped entry chunks.",
   "main": "index.js",
   "engines": {
@@ -26,7 +26,7 @@
     "url": "https://github.com/nuintun/webpack-entry-manifest-plugin/issues"
   },
   "dependencies": {
-    "fs-extra": "^7.0.0"
+    "fs-extra": "^8.0.1"
   },
   "homepage": "https://github.com/nuintun/webpack-entry-manifest-plugin#readme"
 }

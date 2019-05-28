@@ -2,7 +2,6 @@
  * @module index
  * @license MIT
  * @author nuintun
- * @version 2018/05/17
  * @description Webpack plugin for generating an asset manifest with grouped entry chunks.
  */
 

@@ -45,9 +45,9 @@ class WebpackEntryManifestPlugin {
       {
         map: null,
         basePath: null,
+        serialize: null,
         outputPath: null,
         publicPath: null,
-        serialize: null,
         filename: 'manifest.json'
       },
       options

@@ -1,6 +1,6 @@
 {
   "name": "webpack-entry-manifest-plugin",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Webpack plugin for generating an asset manifest with grouped entry chunks.",
   "main": "index.js",
   "engines": {

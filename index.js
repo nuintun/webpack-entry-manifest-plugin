@@ -29,7 +29,7 @@ function unixify(path) {
 
 // Default configure function
 const map = file => file;
-const filter = file => true;
+const filter = () => true;
 const serialize = manifest => JSON.stringify(manifest, null, 2);
 
 /**
@@ -177,7 +177,7 @@ class WebpackEntryManifestPlugin {
 
     // Write manifest file
     fs.outputFile(outputFile, buffer)
-      .then(result => next())
+      .then(() => next())
       .catch(error => next(error));
   }
 

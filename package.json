@@ -26,7 +26,7 @@
     "url": "https://github.com/nuintun/webpack-entry-manifest-plugin/issues"
   },
   "dependencies": {
-    "webpack-sources": "1.4.3"
+    "webpack-sources": "^1.4.3"
   },
   "peerDependencies": {
     "webpack": ">=4.0.0"

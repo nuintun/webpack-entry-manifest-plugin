@@ -5,8 +5,8 @@
  * @description Webpack plugin for generating an asset manifest with grouped entry chunks.
  */
 
-const path = require('path');
-const fs = require('fs-extra');
+const { RawSource } = require('webpack-sources');
+const { extname, isAbsolute, normalize, relative } = require('path');
 
 /**
  * @function isFunction
@@ -24,13 +24,21 @@ function isFunction(value) {
  * @returns {string}
  */
 function unixify(path) {
-  return path.replace(/\\/g, '/');
+  return normalize(path).replace(/\\/g, '/');
+}
+
+function getAssetName(outputPath, filename) {
+  if (isAbsolute(filename)) {
+    return unixify(relative(outputPath, filename));
+  }
+
+  return unixify(filename);
 }
 
 // Default configure function
 const map = file => file;
 const filter = () => true;
-const serialize = manifest => JSON.stringify(manifest, null, 2);
+const serialize = manifest => JSON.stringify(manifest);
 
 /**
  * @class WebpackEntryManifestPlugin
@@ -41,23 +49,15 @@ class WebpackEntryManifestPlugin {
    * @param {Object} options
    */
   constructor(options) {
-    this.options = Object.assign(
-      {
-        map: null,
-        basePath: null,
-        serialize: null,
-        outputPath: null,
-        publicPath: null,
-        filename: 'manifest.json'
-      },
-      options
-    );
+    options = { ...options };
 
+    options.filename = options.filename || 'manifest.json';
+    options.map = isFunction(options.map) ? options.map : map;
+    options.filter = isFunction(options.filter) ? options.filter : filter;
+    options.serialize = isFunction(options.serialize) ? options.serialize : serialize;
+
+    this.options = options;
     this.name = 'WebpackEntryManifestPlugin';
-    this.options.basePath = this.options.basePath || '';
-    this.options.map = isFunction(this.options.map) ? this.options.map : map;
-    this.options.filter = isFunction(this.options.filter) ? this.options.filter : filter;
-    this.options.serialize = isFunction(this.options.serialize) ? this.options.serialize : serialize;
   }
 
   /**
@@ -67,7 +67,7 @@ class WebpackEntryManifestPlugin {
    * @returns {string}
    */
   extname(file) {
-    return path.extname(file).toLowerCase();
+    return extname(file).toLowerCase();
   }
 
   /**
@@ -77,7 +77,7 @@ class WebpackEntryManifestPlugin {
    * @returns {Map}
    */
   entrypoints(compilation) {
-    const entrypoints = compilation.entrypoints;
+    const { entrypoints } = compilation;
 
     // Webpack 4
     if (entrypoints instanceof Map) {
@@ -103,17 +103,11 @@ class WebpackEntryManifestPlugin {
    * @param {Function} next
    */
   generateManifest(compiler, compilation, next) {
-    const options = this.options;
-    const basePath = options.basePath;
-    const outputPath = options.outputPath || compiler.outputPath;
-    const publicPath = options.publicPath || compiler.options.output.publicPath;
+    const { options } = this;
+    const { outputPath } = compiler;
+    const { publicPath } = compiler.options.output;
+    const { filename, filter, map, serialize } = options;
 
-    // Map function
-    const map = options.map;
-    // Filter function
-    const filter = options.filter;
-    // Serialize function
-    const serialize = options.serialize;
     // Define manifest
     const manifest = Object.create(null);
     // Get entrypoints
@@ -124,7 +118,7 @@ class WebpackEntryManifestPlugin {
       const js = [];
       const css = [];
       const initials = new Set();
-      const chunks = entrypoint.chunks;
+      const { chunks } = entrypoint;
 
       // Walk main chunks
       for (const chunk of chunks) {
@@ -157,28 +151,19 @@ class WebpackEntryManifestPlugin {
         }
       }
 
-      name = basePath + name;
       manifest[name] = { js, css };
     });
 
-    // Get paths
-    const filename = options.filename;
-    const outputFile = path.resolve(outputPath, filename);
+    const asset = getAssetName(outputPath, filename);
+    const source = new RawSource(serialize(manifest));
 
-    // Manifest source
-    const source = serialize(manifest);
-    const buffer = Buffer.from(source);
+    if (isFunction(compilation.emitAsset)) {
+      compilation.emitAsset(asset, source);
+    } else {
+      compilation.assets[asset] = source;
+    }
 
-    // Add to assets
-    compilation.assets[unixify(filename)] = {
-      source: () => source,
-      size: () => Buffer.byteLength(buffer)
-    };
-
-    // Write manifest file
-    fs.outputFile(outputFile, buffer)
-      .then(() => next())
-      .catch(error => next(error));
+    next();
   }
 
   /**

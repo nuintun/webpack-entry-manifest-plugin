@@ -30,7 +30,7 @@ module.exports = {
 
 ```json
 {
-  "pages/index": {
+  "index": {
     "js": [
       "/Assets/dist/js/runtime.js",
       "/Assets/dist/js/react.js",
@@ -40,7 +40,7 @@ module.exports = {
     ],
     "css": ["/Assets/dist/css/antd.css", "/Assets/dist/css/index.css"]
   },
-  "pages/login/index": {
+  "login/index": {
     "js": [
       "/Assets/dist/js/runtime.js",
       "/Assets/dist/js/react.js",
@@ -50,7 +50,7 @@ module.exports = {
     ],
     "css": ["/Assets/dist/css/antd.css", "/Assets/dist/css/login/index.css"]
   },
-  "pages/user/index": {
+  "user/index": {
     "js": [
       "/Assets/dist/js/runtime.js",
       "/Assets/dist/js/react.js",

@@ -13,17 +13,14 @@
 const WebpackEntryManifestPlugin = require('webpack-entry-manifest-plugin');
 
 module.exports = {
-  // ... webpack configure
+  // ... Webpack configure
   plugins: [
-    // ... webpack plugins
+    // ... Webpack plugins
     new WebpackEntryManifestPlugin({
-      map: null, // Assets path map function
-      filter: null, // Assets path filter function
-      basePath: null, // Entry name base path
-      outputPath: null, // Output target directory, default use output.path
-      publicPath: null, // Same to webpack output.publicPath, default use output.publicPath
-      serialize: null, // Manifest serialize function
-      filename: 'manifest.json' // Manifest filename
+      filename: 'manifest.json', // Assets manifest filename
+      map: (path, chunk) => path, // Assets path map function
+      filter: (path, chunk) => true, // Assets path filter function
+      serialize: manifest => JSON.stringify(manifest) // Assets manifest serialize function
     })
   ]
 };

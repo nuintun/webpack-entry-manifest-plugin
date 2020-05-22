@@ -36,7 +36,7 @@ function getAssetName(outputPath, filename) {
 }
 
 // Default configure function
-const map = file => file;
+const map = path => path;
 const filter = () => true;
 const serialize = manifest => JSON.stringify(manifest);
 
@@ -63,11 +63,11 @@ class WebpackEntryManifestPlugin {
   /**
    * @private
    * @method extname
-   * @param {string} file
+   * @param {string} path
    * @returns {string}
    */
-  extname(file) {
-    return extname(file).toLowerCase();
+  extname(path) {
+    return extname(path).toLowerCase();
   }
 
   /**
@@ -122,26 +122,31 @@ class WebpackEntryManifestPlugin {
 
       // Walk main chunks
       for (const chunk of chunks) {
-        for (let file of chunk.files) {
-          if (!initials.has(file)) {
-            initials.add(file);
+        const { files } = chunk;
 
-            // Get extname
-            const ext = this.extname(file);
+        // Walk main files
+        for (let path of files) {
+          if (!initials.has(path)) {
+            initials.add(path);
 
-            // Get file path
-            file = publicPath + file;
+            // Add public path
+            path = publicPath + path;
 
-            if (filter(file, chunk)) {
-              file = String(map(file, chunk));
+            // Filter path
+            if (filter(path, chunk)) {
+              // Get extname
+              const extname = this.extname(path);
+
+              // Map path
+              path = map(path, chunk);
 
               // Type classification
-              switch (ext) {
+              switch (extname) {
                 case '.js':
-                  js.push(file);
+                  js.push(path);
                   break;
                 case '.css':
-                  css.push(file);
+                  css.push(path);
                   break;
                 default:
                   break;

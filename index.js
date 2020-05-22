@@ -24,7 +24,7 @@ function isFunction(value) {
  * @returns {string}
  */
 function unixify(path) {
-  return normalize(path).replace(/\\/g, '/');
+  return path.replace(/\\/g, '/');
 }
 
 function getAssetName(outputPath, filename) {
@@ -32,7 +32,7 @@ function getAssetName(outputPath, filename) {
     return unixify(relative(outputPath, filename));
   }
 
-  return unixify(filename);
+  return unixify(normalize(filename));
 }
 
 // Default configure function
